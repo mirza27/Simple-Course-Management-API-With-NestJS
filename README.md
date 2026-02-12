@@ -1,98 +1,187 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+### Repository Description
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A simple course management REST API built with NestJS for a technical test assignment. Implements CRUD operations, validation, and database integration.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+### README.md
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+````markdown
+# Course Management API
 
-## Project setup
+This project is a **simple course management REST API** developed with **NestJS** as part of a technical test. It demonstrates basic CRUD operations, input validation, error handling, and database integration using TypeORM.
+
+## Features
+
+- Create, read, update, and delete courses
+- Input validation using class-validator
+- PostgreSQL database (configurable)
+- Environment-based configuration
+- Basic error handling and HTTP status codes
+
+## Tech Stack
+
+- [NestJS](https://nestjs.com/) – Node.js framework
+- [TypeORM](https://typeorm.io/) – ORM for database interaction
+- [PostgreSQL](https://www.postgresql.org/) – relational database (easily replaceable)
+- [class-validator](https://github.com/typestack/class-validator) – DTO validation
+- [dotenv](https://github.com/motdotla/dotenv) – environment variables
+
+## Prerequisites
+
+- Node.js (v18 or later)
+- npm or yarn
+- PostgreSQL (or Docker for containerised DB)
+
+## Setup Instructions
+
+### 1. Clone the repository
 
 ```bash
-$ npm install
+git clone https://github.com/yourusername/course-management-api.git
+cd course-management-api
+```
+````
+
+### 2. Install dependencies
+
+```bash
+npm install
+# or
+yarn install
 ```
 
-## Compile and run the project
+### 3. Configure environment variables
+
+Copy the example environment file and adjust the values:
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` with your database credentials and other settings:
+
+```env
+NODE_ENV=development
+PORT=3000
+
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=postgres
+DB_PASSWORD=postgres
+DB_DATABASE=course_management
+```
+
+### 4. Set up the database
+
+If you have PostgreSQL running, create the database manually:
+
+```sql
+CREATE DATABASE course_management;
+```
+
+Or run TypeORM migrations (if implemented). For simplicity, you can enable `synchronize: true` in the TypeORM config (development only).
+
+### 5. Run the application
 
 ```bash
 # development
-$ npm run start
+npm run start
 
 # watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm run start:dev
 ```
 
-## Run tests
+The API will be available at `http://localhost:3000`.
+
+### 6. Run tests
 
 ```bash
 # unit tests
-$ npm run test
+npm run test
 
 # e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npm run test:e2e
 ```
 
-## Deployment
+## API Endpoints
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+| Method | Endpoint     | Description         |
+| ------ | ------------ | ------------------- |
+| GET    | /courses     | Get all courses     |
+| GET    | /courses/:id | Get a single course |
+| POST   | /courses     | Create a new course |
+| PATCH  | /courses/:id | Update a course     |
+| DELETE | /courses/:id | Delete a course     |
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### Request / Response Examples
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+**POST /courses**
+
+```json
+{
+  "title": "Introduction to NestJS",
+  "description": "Learn the basics of the NestJS framework",
+  "instructor": "John Doe",
+  "duration": 120,
+  "price": 49.99
+}
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+**Response (201 Created)**
 
-## Resources
+```json
+{
+  "id": 1,
+  "title": "Introduction to NestJS",
+  "description": "Learn the basics of the NestJS framework",
+  "instructor": "John Doe",
+  "duration": 120,
+  "price": 49.99,
+  "createdAt": "2025-03-23T10:00:00.000Z",
+  "updatedAt": "2025-03-23T10:00:00.000Z"
+}
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+## Project Structure
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+```
+/src
+├── app.controller.spec.ts
+├── app.controller.ts
+├── app.module.ts
+├── app.service.ts
+├── common
+│   └── decorators
+├── database
+│   ├── database.config.ts
+│   ├── entities
+│   ├── migration
+│   └── seeder
+├── episode
+│   ├── episode.controller.spec.ts
+│   ├── episode.controller.ts
+│   ├── episode.module.ts
+│   ├── episode.service.spec.ts
+│   └── episode.service.ts
+├── main.ts
+└── modules
+    ├── auth
+    ├── category
+    ├── course
+    └── user
+```
 
-## Support
+## Notes
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- This project was created as a **technical test submission** and is not intended for production use.
+- The database schema is automatically synchronised in development (set `synchronize: true` in `database.config.ts`). For production, use migrations.
+- Authentication/authorisation are omitted to keep the test focused on the core functionality.
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+This project is licensed under the MIT License.
+
+```
+
+```
