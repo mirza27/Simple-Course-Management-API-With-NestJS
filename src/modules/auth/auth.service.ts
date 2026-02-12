@@ -7,9 +7,8 @@ import { User, UserRole } from 'src/database/entities/user.entity';
 import { LoginUserDto } from './dto/loginUser.dto';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DeepPartial, Repository } from 'typeorm';
 import { UserAuth } from 'src/database/entities/user-auth.entity';
-import { UserAuthDto } from './dto/userAuth.dto';
 
 interface JwtPayload {
   name: string;
@@ -78,6 +77,19 @@ export class AuthService {
     return user;
   }
 
+  async Logout(userId: number) {
+    await this.userAuthRepository.update(
+      { user_id: userId },
+      {
+        refresh_token: '',
+        expired_at: new Date(),
+        updated_at: new Date(),
+      },
+    );
+
+    return { message: 'Logged out successfully' };
+  }
+
   async createAccessToken(user: User) {
     const payload: JwtPayload = {
       name: user.name,
@@ -122,10 +134,15 @@ export class AuthService {
 
     const refresh_token = await this.jwtService.signAsync(payload);
 
-    // save refresh token to db
-    const userAuth: UserAuthDto = {
-      user_id: user.id,
-      refresh_token: refresh_token,
+    // upsert refresh token per user
+    const existing = await this.userAuthRepository.findOne({
+      where: { user: { id: user.id } },
+    });
+
+    const userAuth: DeepPartial<UserAuth> = {
+      id: existing?.id,
+      user: { id: user.id } as User,
+      refresh_token,
       expired_at: payload.expiredAt,
     };
 

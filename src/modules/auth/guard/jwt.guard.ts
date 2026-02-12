@@ -12,7 +12,7 @@ interface JwtPayload {
   name: string;
   email: string;
   role: string;
-  expiredAt: Date;
+  expiredAt: string | Date;
 }
 
 interface AccessTokenResult {
@@ -30,7 +30,7 @@ export class JwtGuard implements CanActivate {
     let accessToken: string | null = token ?? null;
 
     if (!token) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('No token provided');
     }
     try {
       // check access token
@@ -38,24 +38,50 @@ export class JwtGuard implements CanActivate {
         token,
       )) as JwtPayload | null;
       if (!accessPayload) {
-        throw new UnauthorizedException();
+        throw new UnauthorizedException('Expired access token');
       }
 
-      if (accessPayload.expiredAt < new Date()) {
+      const accessExpiry = new Date(accessPayload.expiredAt);
+
+      if (Number.isNaN(accessExpiry.getTime())) {
+        throw new UnauthorizedException('Invalid token expiry');
+      }
+
+      // using refresh token
+      if (accessExpiry < new Date()) {
         const userAuth = await this.authService.getUserAuthByUserId(
           accessPayload.userId,
         );
+
+        const storedRefresh = userAuth?.[0]?.refresh_token;
+        if (!storedRefresh) {
+          throw new UnauthorizedException(
+            'No refresh token, please login again',
+          );
+        }
+
         const refreshToken = (await this.authService.validateToken(
-          userAuth[0].refresh_token,
+          storedRefresh,
         )) as JwtPayload | null;
 
-        if (!refreshToken || refreshToken.expiredAt < new Date()) {
-          throw new UnauthorizedException();
+        if (!refreshToken) {
+          throw new UnauthorizedException('Invalid refresh token');
+        }
+
+        const refreshExpiry = new Date(refreshToken.expiredAt);
+
+        if (
+          Number.isNaN(refreshExpiry.getTime()) ||
+          refreshExpiry < new Date()
+        ) {
+          throw new UnauthorizedException(
+            'Refresh token expired, please login again',
+          );
         }
 
         const newAccess =
           (await this.authService.createAccessTokenByRefreshToken(
-            userAuth[0].refresh_token,
+            storedRefresh,
           )) as AccessTokenResult;
         accessToken = newAccess.access_token;
       } else {
@@ -63,7 +89,7 @@ export class JwtGuard implements CanActivate {
       }
 
       if (!accessToken) {
-        throw new UnauthorizedException();
+        throw new UnauthorizedException('Invalid access token');
       }
 
       const validUser = (await this.authService.validateToken(
@@ -75,8 +101,8 @@ export class JwtGuard implements CanActivate {
       request['userId'] = validUser.userId;
       request['email'] = validUser.email;
       request['role'] = validUser.role;
-    } catch {
-      throw new UnauthorizedException();
+    } catch (error) {
+      throw new UnauthorizedException(error);
     }
     return true;
   }

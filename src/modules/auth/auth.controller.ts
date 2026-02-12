@@ -27,13 +27,16 @@ export class AuthController {
     return this.authService.GetLoggedUser(req.user.userId);
   }
 
-  @Get('renew-token')
-  renewAccessToken() {
-    return 'Renew token endpoint';
+  @Post('renew-token')
+  async renewAccessToken(@Body() body: { refresh_token: string }) {
+    return await this.authService.createAccessTokenByRefreshToken(
+      body.refresh_token,
+    );
   }
 
+  @UseGuards(JwtGuard)
   @Get('logout')
-  logout() {
-    return 'Logout endpoint';
+  logout(@Req() req: Request & { user: { userId: number } }) {
+    return this.authService.Logout(req.user.userId);
   }
 }
