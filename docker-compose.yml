@@ -1,0 +1,23 @@
+name: ${APP_NAME}
+
+services:
+  database:
+    image: postgres:16
+    container_name: ${APP_NAME}_database
+    environment:
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+    ports:
+      - '${DATABASE_PORT}:5432'
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:
+    name: db_data
+
+networks:
+  app_network:
+    name: app_network
+    driver: bridge
