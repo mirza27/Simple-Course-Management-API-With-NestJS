@@ -6,14 +6,8 @@ import {
 } from '@nestjs/common';
 import { Request } from 'express';
 import { AuthService } from '../auth.service';
-
-interface JwtPayload {
-  userId: number;
-  name: string;
-  email: string;
-  role: string;
-  expiredAt: string | Date;
-}
+import { RequestWithUser } from 'src/common/dto/request-with-user.dto';
+import { JwtPayload } from 'src/common/dto/jwtPayload.dto';
 
 interface AccessTokenResult {
   access_token: string;
@@ -24,7 +18,7 @@ export class JwtGuard implements CanActivate {
   constructor(private authService: AuthService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest<Request>();
+    const request = context.switchToHttp().getRequest<RequestWithUser>();
     const token = this.extractTokenFromHeader(request);
 
     let accessToken: string | null = token ?? null;
@@ -96,7 +90,7 @@ export class JwtGuard implements CanActivate {
         accessToken,
       )) as JwtPayload;
 
-      (request as Request & { user?: JwtPayload }).user = validUser;
+      request.user = validUser;
       request['name'] = validUser.name;
       request['userId'] = validUser.userId;
       request['email'] = validUser.email;
