@@ -45,13 +45,13 @@ export class AuthController {
 
   @Post('renew-token')
   async renewAccessToken(@Body() body: { refresh_token: string }) {
-    const token = await this.authService.createAccessTokenByRefreshToken(
+    const accessToken = await this.authService.createAccessTokenByRefreshToken(
       body.refresh_token,
     );
 
     return {
       message: 'Access token renewed successfully',
-      data: token,
+      data: { access_token: accessToken },
     };
   }
 

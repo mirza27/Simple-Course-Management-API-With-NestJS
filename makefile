@@ -16,4 +16,7 @@ revert:
 seed:
 	npm run seed
 
+test-auth:
+	npm run test:e2e -- test/auth.e2e-spec.ts
+
 .PHONY: api db
