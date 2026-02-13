@@ -9,6 +9,7 @@ import {
   UserCourse,
   UserCourseStatus,
 } from 'src/database/entities/user-course.entity';
+import { ListCourseQueryDto } from './dto/listCourseQuery.dto';
 
 @Injectable()
 export class CourseService {
@@ -21,10 +22,49 @@ export class CourseService {
     private categoryService: CategoryService,
   ) {}
 
-  async GetByFilterCourse() {}
+  async GetByFilterCourse(query: ListCourseQueryDto) {
+    const { search, category_id, sort, page, limit } = query;
+
+    const skip = (page - 1) * limit;
+
+    const queryBuilder = this.courseRepository.createQueryBuilder('course');
+
+    if (search) {
+      queryBuilder.where('course.name ILIKE :search', {
+        search: `%${search}%`,
+      });
+    }
+
+    if (category_id) {
+      queryBuilder.andWhere('course.category_id = :category_id', {
+        category_id,
+      });
+    }
+
+    queryBuilder.orderBy('course.created_at', sort);
+    queryBuilder.skip(skip).take(limit);
+
+    const [courses, total] = await queryBuilder.getManyAndCount();
+
+    return {
+      courses: courses,
+      meta: {
+        total,
+        page,
+        limit,
+      },
+    };
+  }
 
   async GetByIdCourse(id: number) {
     return this.courseRepository.findOneOrFail({ where: { id } });
+  }
+
+  async GetUserCourses(user_id: number) {
+    return this.userCourseRepository.find({
+      where: { user: { id: user_id }, status: UserCourseStatus.ACTIVE },
+      relations: ['course'],
+    });
   }
 
   async CreateCourse(courseData: CreateCourseDto) {

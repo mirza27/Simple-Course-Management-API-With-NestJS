@@ -102,7 +102,7 @@ export class AuthService {
     };
 
     const access_token = await this.jwtService.signAsync(payload);
-    return { access_token };
+    return access_token;
   }
 
   async createAccessTokenByRefreshToken(access_token: string) {
@@ -146,7 +146,7 @@ export class AuthService {
 
     await this.userAuthRepository.save(userAuth);
 
-    return { refresh_token };
+    return refresh_token;
   }
 
   async validateToken(token: string): Promise<JwtPayload> {

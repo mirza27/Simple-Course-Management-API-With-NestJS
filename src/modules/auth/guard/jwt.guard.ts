@@ -9,10 +9,6 @@ import { AuthService } from '../auth.service';
 import { RequestWithUser } from 'src/common/dto/request-with-user.dto';
 import { JwtPayload } from 'src/common/dto/jwtPayload.dto';
 
-interface AccessTokenResult {
-  access_token: string;
-}
-
 @Injectable()
 export class JwtGuard implements CanActivate {
   constructor(private authService: AuthService) {}
@@ -73,11 +69,8 @@ export class JwtGuard implements CanActivate {
           );
         }
 
-        const newAccess =
-          (await this.authService.createAccessTokenByRefreshToken(
-            storedRefresh,
-          )) as AccessTokenResult;
-        accessToken = newAccess.access_token;
+        accessToken =
+          await this.authService.createAccessTokenByRefreshToken(storedRefresh);
       } else {
         accessToken = token;
       }

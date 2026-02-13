@@ -7,6 +7,7 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -21,6 +22,8 @@ import { JoinMemberCourseDto } from './dto/joinCourse.dto';
 import { JwtGuard } from '../auth/guard/jwt.guard';
 import { ExitCourseDto } from './dto/exitCourse.dto';
 import type { RequestWithUser } from 'src/common/dto/request-with-user.dto';
+import { ListCourseQueryDto } from './dto/listCourseQuery.dto';
+import { AddMemberCourseDto } from './dto/addMemberCourse.dto';
 
 @Controller('course')
 export class CourseController {
@@ -28,21 +31,14 @@ export class CourseController {
 
   @UseGuards(JwtGuard, RolesGuard)
   @Roles(UserRole.CUSTOMER, UserRole.ADMIN)
-  @Get(':id')
-  getCourse(@Param('id', ParseIntPipe) id: number) {
-    const course = this.courseService.GetByIdCourse(id);
+  @Get('list')
+  async getCourses(@Query() query: ListCourseQueryDto) {
+    const result = await this.courseService.GetByFilterCourse(query);
 
     return {
       message: 'Success',
-      data: { course: course },
+      data: result,
     };
-  }
-
-  @UseGuards(JwtGuard, RolesGuard)
-  @Roles(UserRole.CUSTOMER, UserRole.ADMIN)
-  @Get('list')
-  getCourses() {
-    return this.courseService.GetByFilterCourse();
   }
 
   @UseGuards(JwtGuard, RolesGuard)
@@ -61,6 +57,32 @@ export class CourseController {
 
     return {
       message: 'Successfully joined the course',
+      data: { course: course },
+    };
+  }
+
+  @UseGuards(JwtGuard, RolesGuard)
+  @Roles(UserRole.CUSTOMER)
+  @Get('my-courses')
+  async getJoinedCourses(@Req() req: RequestWithUser) {
+    const userId = req.user.userId;
+
+    const joinedCourses = await this.courseService.GetUserCourses(userId);
+
+    return {
+      message: 'Successfully retrieved joined courses',
+      data: { courses: joinedCourses },
+    };
+  }
+
+  @UseGuards(JwtGuard, RolesGuard)
+  @Roles(UserRole.CUSTOMER, UserRole.ADMIN)
+  @Get(':id')
+  async getCourse(@Param('id', ParseIntPipe) id: number) {
+    const course = await this.courseService.GetByIdCourse(id);
+
+    return {
+      message: 'Success',
       data: { course: course },
     };
   }
@@ -94,7 +116,7 @@ export class CourseController {
   @UseGuards(JwtGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   @Post('add-member')
-  async addMemberToCourse(@Body() request: RemoveMemberCourseDto) {
+  async addMemberToCourse(@Body() request: AddMemberCourseDto) {
     const course = await this.courseService.AddMemberCourse(
       request.user_id,
       request.course_id,
@@ -109,20 +131,29 @@ export class CourseController {
   @UseGuards(JwtGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   @Put(':id')
-  updateCourse(
+  async updateCourse(
     @Param('id', ParseIntPipe) id: number,
     @Body() req: UpdateCourseDto,
   ) {
-    return this.courseService.UpdateCourse(id, req);
+    const course = await this.courseService.UpdateCourse(id, req);
+
+    return {
+      message: 'Successfully updated course',
+      data: { course: course },
+    };
   }
 
   @UseGuards(JwtGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   @Delete('remove-member')
-  removeCourseMember(@Body() request: RemoveMemberCourseDto) {
-    return this.courseService.RemoveCourseMember(
+  async removeCourseMember(@Body() request: RemoveMemberCourseDto) {
+    await this.courseService.RemoveCourseMember(
       request.user_id,
       request.course_id,
     );
+
+    return {
+      message: 'Successfully removed member from course',
+    };
   }
 }
