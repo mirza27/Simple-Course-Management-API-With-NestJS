@@ -4,32 +4,9 @@ A simple course management REST API built with NestJS for a technical test assig
 
 ---
 
-### README.md
-
-````markdown
-# Course Management API
-
-This project is a **simple course management REST API** developed with **NestJS** as part of a technical test. It demonstrates basic CRUD operations, input validation, error handling, and database integration using TypeORM.
-
-## Features
-
-- Create, read, update, and delete courses
-- Input validation using class-validator
-- PostgreSQL database (configurable)
-- Environment-based configuration
-- Basic error handling and HTTP status codes
-
-## Tech Stack
-
-- [NestJS](https://nestjs.com/) – Node.js framework
-- [TypeORM](https://typeorm.io/) – ORM for database interaction
-- [PostgreSQL](https://www.postgresql.org/) – relational database (easily replaceable)
-- [class-validator](https://github.com/typestack/class-validator) – DTO validation
-- [dotenv](https://github.com/motdotla/dotenv) – environment variables
-
 ## Prerequisites
 
-- Node.js (v18 or later)
+- Node.js (v20 or later)
 - npm or yarn
 - PostgreSQL (or Docker for containerised DB)
 
@@ -38,10 +15,9 @@ This project is a **simple course management REST API** developed with **NestJS*
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/course-management-api.git
+git clone https://github.com/mirza27/Simple-Course-Management-API-With-NestJS course-management-api
 cd course-management-api
 ```
-````
 
 ### 2. Install dependencies
 
@@ -55,29 +31,37 @@ yarn install
 
 Copy the example environment file and adjust the values:
 
-```bash
-cp .env.example .env
-```
-
 Edit `.env` with your database credentials and other settings:
 
 ```env
-NODE_ENV=development
+APP_NAME=course-app-api
 PORT=3000
 
-DB_HOST=localhost
-DB_PORT=5432
-DB_USERNAME=postgres
-DB_PASSWORD=postgres
-DB_DATABASE=course_management
+DATABASE_HOST=localhost
+DATABASE_PORT=5444
+DATABASE_USERNAME=postgres
+DATABASE_PASSWORD=postgres
+DATABASE_NAME=course-app-db
+
+JWT_SECRET=example-secret
+JWT_ACCESS_TOKEN_EXPIRATION=600
+JWT_REFRESH_TOKEN_EXPIRATION=604800
 ```
 
-### 4. Set up the database
+### 4. Set up the database and seeding
 
-If you have PostgreSQL running, create the database manually:
+Run using docker (make sure Makefile is exist)
 
-```sql
-CREATE DATABASE course_management;
+```bash
+# run db
+make db
+
+# migrate
+make generate name=init
+make migrate
+
+# run seeder
+make seed
 ```
 
 Or run TypeORM migrations (if implemented). For simplicity, you can enable `synchronize: true` in the TypeORM config (development only).
@@ -87,101 +71,84 @@ Or run TypeORM migrations (if implemented). For simplicity, you can enable `sync
 ```bash
 # development
 npm run start
-
-# watch mode
-npm run start:dev
 ```
 
 The API will be available at `http://localhost:3000`.
 
-### 6. Run tests
+### 6. Run test (this test only consist auth test)
 
 ```bash
-# unit tests
-npm run test
-
-# e2e tests
-npm run test:e2e
-```
-
-## API Endpoints
-
-| Method | Endpoint     | Description         |
-| ------ | ------------ | ------------------- |
-| GET    | /courses     | Get all courses     |
-| GET    | /courses/:id | Get a single course |
-| POST   | /courses     | Create a new course |
-| PATCH  | /courses/:id | Update a course     |
-| DELETE | /courses/:id | Delete a course     |
-
-### Request / Response Examples
-
-**POST /courses**
-
-```json
-{
-  "title": "Introduction to NestJS",
-  "description": "Learn the basics of the NestJS framework",
-  "instructor": "John Doe",
-  "duration": 120,
-  "price": 49.99
-}
-```
-
-**Response (201 Created)**
-
-```json
-{
-  "id": 1,
-  "title": "Introduction to NestJS",
-  "description": "Learn the basics of the NestJS framework",
-  "instructor": "John Doe",
-  "duration": 120,
-  "price": 49.99,
-  "createdAt": "2025-03-23T10:00:00.000Z",
-  "updatedAt": "2025-03-23T10:00:00.000Z"
-}
+# auth test
+make test-auth
 ```
 
 ## Project Structure
 
 ```
-/src
+./src
 ├── app.controller.spec.ts
 ├── app.controller.ts
 ├── app.module.ts
 ├── app.service.ts
 ├── common
-│   └── decorators
+│   ├── decorators
+│   │   └── roles.decorator.ts
+│   └── dto
+│       ├── jwtPayload.dto.ts
+│       └── request-with-user.dto.ts
 ├── database
 │   ├── database.config.ts
 │   ├── entities
+│   │   ├── category.entity.ts
+│   │   ├── course.entity.ts
+│   │   ├── user-auth.entity.ts
+│   │   ├── user-course.entity.ts
+│   │   └── user.entity.ts
 │   ├── migration
+│   │   └── 1770869765286-init.ts
 │   └── seeder
-├── episode
-│   ├── episode.controller.spec.ts
-│   ├── episode.controller.ts
-│   ├── episode.module.ts
-│   ├── episode.service.spec.ts
-│   └── episode.service.ts
+│       ├── course.seeder.ts
+│       ├── runner.seeder.ts
+│       └── userSeeder.ts
 ├── main.ts
 └── modules
     ├── auth
+    │   ├── auth.controller.spec.ts
+    │   ├── auth.controller.ts
+    │   ├── auth.module.ts
+    │   ├── auth.service.spec.ts
+    │   ├── auth.service.ts
+    │   ├── dto
+    │   ├── guard
+    │   └── strategies
     ├── category
+    │   ├── category.controller.spec.ts
+    │   ├── category.controller.ts
+    │   ├── category.module.ts
+    │   ├── category.service.spec.ts
+    │   ├── category.service.ts
+    │   └── dto
     ├── course
+    │   ├── course.controller.spec.ts
+    │   ├── course.controller.ts
+    │   ├── course.module.ts
+    │   ├── course.service.spec.ts
+    │   ├── course.service.ts
+    │   └── dto
     └── user
+        ├── dto
+        ├── user.controller.spec.ts
+        ├── user.controller.ts
+        ├── user.module.ts
+        ├── user.service.spec.ts
+        └── user.service.ts
 ```
 
 ## Notes
 
 - This project was created as a **technical test submission** and is not intended for production use.
-- The database schema is automatically synchronised in development (set `synchronize: true` in `database.config.ts`). For production, use migrations.
 - Authentication/authorisation are omitted to keep the test focused on the core functionality.
 
 ## License
 
 This project is licensed under the MIT License.
-
-```
-
-```
