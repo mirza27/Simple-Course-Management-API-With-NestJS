@@ -86,8 +86,6 @@ export class AuthService {
         updated_at: new Date(),
       },
     );
-
-    return { message: 'Logged out successfully' };
   }
 
   async createAccessToken(user: User) {
@@ -99,7 +97,7 @@ export class AuthService {
       token_type: 'access',
       expiredAt: new Date(
         Date.now() +
-          parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRATION || '3600'),
+          parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRATION || '3600') * 1000,
       ),
     };
 
@@ -128,7 +126,7 @@ export class AuthService {
       token_type: 'refresh',
       expiredAt: new Date(
         Date.now() +
-          parseInt(process.env.JWT_REFRESH_TOKEN_EXPIRATION || '604800'),
+          parseInt(process.env.JWT_REFRESH_TOKEN_EXPIRATION || '604800') * 1000,
       ),
     };
 

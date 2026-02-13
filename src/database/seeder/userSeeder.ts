@@ -24,6 +24,12 @@ export const adminSeeds: UserSeed[] = [
 
 export const customerSeeds: UserSeed[] = [
   {
+    name: 'Mirza',
+    email: 'mirza@gmail.com',
+    password: 'mirza123',
+    role: UserRole.CUSTOMER,
+  },
+  {
     name: 'Customer One',
     email: 'cust1@example.com',
     password: 'customer123',

@@ -88,7 +88,12 @@ export class CourseService {
       status: UserCourseStatus.ACTIVE,
     });
 
-    return this.userCourseRepository.save(newUserCourse);
+    await this.userCourseRepository.save(newUserCourse);
+
+    return await this.courseRepository.findOne({
+      where: { id: course_id },
+      relations: ['category'],
+    });
   }
 
   async RemoveCourseMember(user_id: number, course_id: number) {

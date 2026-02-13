@@ -3,6 +3,7 @@ import { RegisterUserDto } from './dto/registerUser.dto';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './dto/loginUser.dto';
 import { JwtGuard } from './guard/jwt.guard';
+import type { RequestWithUser } from 'src/common/dto/request-with-user.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -13,30 +14,54 @@ export class AuthController {
 
   @Post('login')
   async login(@Body() loginRequest: LoginUserDto) {
-    return this.authService.Login(loginRequest);
+    const result = await this.authService.Login(loginRequest);
+
+    return {
+      message: 'Login successful',
+      data: result,
+    };
   }
 
   @Post('register')
   async register(@Body() userRequest: RegisterUserDto) {
-    return this.authService.Register(userRequest);
+    const result = await this.authService.Register(userRequest);
+
+    return {
+      message: 'Registration successful',
+      data: result,
+    };
   }
 
   @UseGuards(JwtGuard)
   @Get('me')
-  getMe(@Req() req: Request & { user: { userId: number } }) {
-    return this.authService.GetLoggedUser(req.user.userId);
+  async getMe(@Req() req: RequestWithUser) {
+    const result = await this.authService.GetLoggedUser(req.user.userId);
+
+    return {
+      message: 'Successfully retrieved user data',
+      data: result,
+    };
   }
 
   @Post('renew-token')
   async renewAccessToken(@Body() body: { refresh_token: string }) {
-    return await this.authService.createAccessTokenByRefreshToken(
+    const token = await this.authService.createAccessTokenByRefreshToken(
       body.refresh_token,
     );
+
+    return {
+      message: 'Access token renewed successfully',
+      data: token,
+    };
   }
 
   @UseGuards(JwtGuard)
   @Get('logout')
-  logout(@Req() req: Request & { user: { userId: number } }) {
-    return this.authService.Logout(req.user.userId);
+  async logout(@Req() req: RequestWithUser) {
+    await this.authService.Logout(req.user.userId);
+
+    return {
+      message: 'Logged out successfully',
+    };
   }
 }
