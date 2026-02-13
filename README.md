@@ -92,62 +92,25 @@ make test-auth
 ├── app.service.ts
 ├── common
 │   ├── decorators
-│   │   └── roles.decorator.ts
 │   └── dto
-│       ├── jwtPayload.dto.ts
-│       └── request-with-user.dto.ts
 ├── database
 │   ├── database.config.ts
 │   ├── entities
-│   │   ├── category.entity.ts
-│   │   ├── course.entity.ts
-│   │   ├── user-auth.entity.ts
-│   │   ├── user-course.entity.ts
-│   │   └── user.entity.ts
 │   ├── migration
-│   │   └── 1770869765286-init.ts
 │   └── seeder
-│       ├── course.seeder.ts
-│       ├── runner.seeder.ts
-│       └── userSeeder.ts
 ├── main.ts
 └── modules
     ├── auth
-    │   ├── auth.controller.spec.ts
-    │   ├── auth.controller.ts
-    │   ├── auth.module.ts
-    │   ├── auth.service.spec.ts
-    │   ├── auth.service.ts
-    │   ├── dto
-    │   ├── guard
-    │   └── strategies
     ├── category
-    │   ├── category.controller.spec.ts
-    │   ├── category.controller.ts
-    │   ├── category.module.ts
-    │   ├── category.service.spec.ts
-    │   ├── category.service.ts
-    │   └── dto
     ├── course
-    │   ├── course.controller.spec.ts
-    │   ├── course.controller.ts
-    │   ├── course.module.ts
-    │   ├── course.service.spec.ts
-    │   ├── course.service.ts
-    │   └── dto
     └── user
-        ├── dto
-        ├── user.controller.spec.ts
-        ├── user.controller.ts
-        ├── user.module.ts
-        ├── user.service.spec.ts
-        └── user.service.ts
 ```
 
 ## Notes
 
 - This project was created as a **technical test submission** and is not intended for production use.
 - Authentication/authorisation are omitted to keep the test focused on the core functionality.
+- Use the _api-doc-postman.json_ for full api documentations
 
 ## License
 
